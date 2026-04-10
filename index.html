@@ -64,16 +64,15 @@ tg.ready();
 tg.expand();
 
 // Кременчуг
-const kremenchukLat = 49.0680;
-const kremenchukLng = 33.4204;
+const startLat = 49.0680;
+const startLng = 33.4204;
 
-let map = L.map('map').setView([kremenchukLat, kremenchukLng], 13);
+let map = L.map('map').setView([startLat, startLng], 13);
 
 L.tileLayer(
 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 {
-maxZoom: 19,
-attribution: '&copy; OpenStreetMap'
+maxZoom: 19
 }
 ).addTo(map);
 
@@ -96,7 +95,7 @@ document.getElementById("button").style.display = "block";
 
 });
 
-document.getElementById("button").addEventListener("click", function(){
+document.getElementById("button").onclick = function(){
 
 if(!selectedLat || !selectedLng){
 return;
@@ -107,13 +106,21 @@ latitude: selectedLat,
 longitude: selectedLng
 };
 
-tg.sendData(JSON.stringify(data));
+if (window.Telegram && Telegram.WebApp) {
+
+Telegram.WebApp.sendData(JSON.stringify(data));
 
 setTimeout(() => {
-tg.close();
-}, 300);
+Telegram.WebApp.close();
+}, 500);
 
-});
+} else {
+
+console.log("Telegram WebApp not detected", data);
+
+}
+
+};
 
 </script>
 
