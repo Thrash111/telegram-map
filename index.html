@@ -27,22 +27,6 @@ height:100%;
 #map {
 height:100%;
 }
-
-#button {
-position: absolute;
-bottom:20px;
-left:50%;
-transform: translateX(-50%);
-background:#2AABEE;
-color:white;
-padding:15px 20px;
-border-radius:10px;
-font-size:16px;
-font-weight:bold;
-z-index:999;
-cursor:pointer;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
 </style>
 
 </head>
@@ -50,10 +34,6 @@ box-shadow:0 4px 10px rgba(0,0,0,0.2);
 <body>
 
 <div id="map"></div>
-
-<div id="button">
-📍 Выбрать точку
-</div>
 
 <script>
 
@@ -91,12 +71,14 @@ marker = L.marker(e.latlng).addTo(map);
 selectedLat = e.latlng.lat;
 selectedLng = e.latlng.lng;
 
+tg.MainButton.setText("📍 Выбрать точку");
+tg.MainButton.show();
+
 });
 
-document.getElementById("button").addEventListener("click", function(){
+tg.MainButton.onClick(function(){
 
 if(!selectedLat || !selectedLng){
-alert("Выберите точку на карте");
 return;
 }
 
@@ -105,16 +87,9 @@ latitude: selectedLat,
 longitude: selectedLng
 };
 
-try {
+tg.sendData(JSON.stringify(data));
 
-Telegram.WebApp.sendData(JSON.stringify(data));
-Telegram.WebApp.close();
-
-} catch(error) {
-
-console.error("Telegram send error:", error);
-
-}
+tg.close();
 
 });
 
