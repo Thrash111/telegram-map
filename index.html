@@ -11,6 +11,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
+
 html, body {
 height: 100%;
 margin: 0;
@@ -38,9 +39,6 @@ box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 cursor: pointer;
 }
 
-.select-btn:active {
-transform: translateX(-50%) scale(0.98);
-}
 </style>
 
 </head>
@@ -51,6 +49,9 @@ transform: translateX(-50%) scale(0.98);
 <button class="select-btn" onclick="sendLocation()">Выбрать точку</button>
 
 <script>
+
+const tg = window.Telegram.WebApp;
+tg.expand();
 
 let selectedLat = 49.0687;
 let selectedLng = 33.4204;
@@ -64,22 +65,26 @@ maxZoom: 19
 let marker = L.marker([selectedLat, selectedLng]).addTo(map);
 
 map.on('click', function(e) {
+
 selectedLat = e.latlng.lat;
 selectedLng = e.latlng.lng;
 
 marker.setLatLng([selectedLat, selectedLng]);
+
 });
 
 function sendLocation() {
 
-if (window.Telegram && Telegram.WebApp) {
-Telegram.WebApp.sendData(JSON.stringify({
+const data = {
 latitude: selectedLat,
 longitude: selectedLng
-}));
+};
 
-Telegram.WebApp.close();
-}
+tg.sendData(JSON.stringify(data));
+
+setTimeout(() => {
+tg.close();
+}, 300);
 
 }
 
