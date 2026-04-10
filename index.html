@@ -27,6 +27,23 @@ height:100%;
 #map {
 height:100%;
 }
+
+#button {
+position: absolute;
+bottom:20px;
+left:50%;
+transform: translateX(-50%);
+background:#2AABEE;
+color:white;
+padding:15px 20px;
+border-radius:10px;
+font-size:16px;
+font-weight:bold;
+z-index:999;
+cursor:pointer;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+display:none;
+}
 </style>
 
 </head>
@@ -34,6 +51,10 @@ height:100%;
 <body>
 
 <div id="map"></div>
+
+<div id="button">
+📍 Выбрать точку
+</div>
 
 <script>
 
@@ -71,12 +92,11 @@ marker = L.marker(e.latlng).addTo(map);
 selectedLat = e.latlng.lat;
 selectedLng = e.latlng.lng;
 
-tg.MainButton.setText("📍 Выбрать точку");
-tg.MainButton.show();
+document.getElementById("button").style.display = "block";
 
 });
 
-tg.MainButton.onClick(function(){
+document.getElementById("button").addEventListener("click", function(){
 
 if(!selectedLat || !selectedLng){
 return;
@@ -89,7 +109,9 @@ longitude: selectedLng
 
 tg.sendData(JSON.stringify(data));
 
+setTimeout(() => {
 tg.close();
+}, 300);
 
 });
 
