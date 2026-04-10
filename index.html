@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Telegram Map Picker</title>
+<title>Map Picker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -23,7 +23,7 @@ height: 100%;
 width: 100%;
 }
 
-.select-btn {
+.btn {
 position: absolute;
 bottom: 20px;
 left: 50%;
@@ -31,11 +31,10 @@ transform: translateX(-50%);
 padding: 14px 24px;
 font-size: 16px;
 border: none;
-background: #0088cc;
+background: #2AABEE;
 color: white;
 border-radius: 10px;
 z-index: 9999;
-box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 cursor: pointer;
 }
 
@@ -46,47 +45,47 @@ cursor: pointer;
 <body>
 
 <div id="map"></div>
-<button class="select-btn" onclick="sendLocation()">Выбрать точку</button>
+<button class="btn" id="send">Добавить точку</button>
 
 <script>
 
 const tg = window.Telegram.WebApp;
+
+tg.ready();
 tg.expand();
 
-let selectedLat = 49.0687;
-let selectedLng = 33.4204;
+let lat = 49.0687;
+let lon = 33.4204;
 
-const map = L.map('map').setView([selectedLat, selectedLng], 13);
+const map = L.map('map').setView([lat, lon], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 maxZoom: 19
 }).addTo(map);
 
-let marker = L.marker([selectedLat, selectedLng]).addTo(map);
+let marker = L.marker([lat, lon]).addTo(map);
 
 map.on('click', function(e) {
 
-selectedLat = e.latlng.lat;
-selectedLng = e.latlng.lng;
+lat = e.latlng.lat;
+lon = e.latlng.lng;
 
-marker.setLatLng([selectedLat, selectedLng]);
+marker.setLatLng([lat, lon]);
 
 });
 
-function sendLocation() {
+document.getElementById("send").addEventListener("click", function() {
 
 const data = {
-latitude: selectedLat,
-longitude: selectedLng
+latitude: lat,
+longitude: lon
 };
 
 tg.sendData(JSON.stringify(data));
 
-setTimeout(() => {
 tg.close();
-}, 300);
 
-}
+});
 
 </script>
 
