@@ -41,6 +41,7 @@ font-size:16px;
 font-weight:bold;
 z-index:999;
 cursor:pointer;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 </style>
 
@@ -56,19 +57,28 @@ cursor:pointer;
 
 <script>
 
-let tg = window.Telegram.WebApp;
+const tg = window.Telegram.WebApp;
+
+tg.ready();
 tg.expand();
 
-let map = L.map('map').setView([50.4501, 30.5234], 12);
+// Кременчуг
+const kremenchukLat = 49.0680;
+const kremenchukLng = 33.4204;
+
+let map = L.map('map').setView([kremenchukLat, kremenchukLng], 13);
 
 L.tileLayer(
 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 {
-maxZoom: 19
+maxZoom: 19,
+attribution: '&copy; OpenStreetMap'
 }
 ).addTo(map);
 
-let marker;
+let marker = null;
+let selectedLat = null;
+let selectedLng = null;
 
 map.on('click', function(e) {
 
@@ -78,28 +88,35 @@ map.removeLayer(marker);
 
 marker = L.marker(e.latlng).addTo(map);
 
-window.selectedLat = e.latlng.lat;
-window.selectedLng = e.latlng.lng;
+selectedLat = e.latlng.lat;
+selectedLng = e.latlng.lng;
 
 });
 
-document.getElementById("button").onclick = function(){
+document.getElementById("button").addEventListener("click", function(){
 
-if(!window.selectedLat){
+if(!selectedLat || !selectedLng){
 alert("Выберите точку на карте");
 return;
 }
 
-let data = {
-latitude: window.selectedLat,
-longitude: window.selectedLng
+const data = {
+latitude: selectedLat,
+longitude: selectedLng
 };
 
-tg.sendData(JSON.stringify(data));
+try {
 
-tg.close();
+Telegram.WebApp.sendData(JSON.stringify(data));
+Telegram.WebApp.close();
 
-};
+} catch(error) {
+
+console.error("Telegram send error:", error);
+
+}
+
+});
 
 </script>
 
