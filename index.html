@@ -1,46 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
   <title>Map Picker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    body { margin: 0; font-family: Arial; }
-
-    #map {
-      height: 100vh;
-      width: 100%;
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
     }
 
-    /* 🔥 КНОПКА ПОВЕРХ КАРТЫ */
-    #controls {
-      position: fixed;
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    #confirmBtn {
+      position: absolute;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 1000;
-    }
-
-    button {
-      padding: 14px 20px;
-      font-size: 16px;
+      padding: 15px 25px;
+      font-size: 18px;
       border: none;
       border-radius: 10px;
-      background: #2ea6ff;
+      background-color: #2196F3;
       color: white;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    button:active {
-      transform: scale(0.97);
     }
   </style>
 </head>
@@ -48,28 +44,29 @@
 <body>
 
 <div id="map"></div>
-
-<!-- 🔥 ВОТ ОНА — КНОПКА -->
-<div id="controls">
-  <button onclick="sendLocation()">📍 Подтвердить точку</button>
-</div>
+<button id="confirmBtn">📍 Подтвердить точку</button>
 
 <script>
-  const map = L.map('map').setView([49.0661, 33.4237], 13);
+  // Инициализация карты
+  const map = L.map('map').setView([49.0661, 33.4236], 13);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    attribution: '© OpenStreetMap'
   }).addTo(map);
 
   let marker = null;
-  let selected = null;
 
-  // выбор точки
+  // Храним координаты глобально
+  window.selectedLat = null;
+  window.selectedLng = null;
+
+  // Клик по карте
   map.on('click', function(e) {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
 
-    selected = { lat, lng };
+    window.selectedLat = lat;
+    window.selectedLng = lng;
 
     if (marker) {
       map.removeLayer(marker);
@@ -78,15 +75,24 @@
     marker = L.marker([lat, lng]).addTo(map);
   });
 
-  // отправка в Telegram
-  function sendLocation() {
-    if (!selected) {
-      alert("Сначала выбери точку на карте");
+  // Кнопка подтверждения
+  document.getElementById('confirmBtn').addEventListener('click', function() {
+
+    if (!window.selectedLat || !window.selectedLng) {
+      alert('Выберите точку на карте');
       return;
     }
 
-    Telegram.WebApp.sendData(JSON.stringify(selected));
-  }
+    // ОТПРАВКА В TELEGRAM
+    Telegram.WebApp.sendData(JSON.stringify({
+      lat: window.selectedLat,
+      lng: window.selectedLng
+    }));
+
+    // Закрыть WebApp (как в Uber)
+    Telegram.WebApp.close();
+  });
+
 </script>
 
 </body>
