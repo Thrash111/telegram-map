@@ -34,9 +34,8 @@
       font-size: 18px;
       border: none;
       border-radius: 10px;
-      background-color: #2196F3;
+      background-color: #2AABEE;
       color: white;
-      cursor: pointer;
     }
   </style>
 </head>
@@ -47,7 +46,12 @@
 <button id="confirmBtn">📍 Подтвердить точку</button>
 
 <script>
-  // Инициализация карты
+  const tg = window.Telegram.WebApp;
+
+  // ❗ убираем системную кнопку Telegram
+  tg.MainButton.hide();
+  tg.expand();
+
   const map = L.map('map').setView([49.0661, 33.4236], 13);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -55,44 +59,35 @@
   }).addTo(map);
 
   let marker = null;
+  let selectedLat = null;
+  let selectedLng = null;
 
-  // Храним координаты глобально
-  window.selectedLat = null;
-  window.selectedLng = null;
-
-  // Клик по карте
   map.on('click', function(e) {
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-
-    window.selectedLat = lat;
-    window.selectedLng = lng;
+    selectedLat = e.latlng.lat;
+    selectedLng = e.latlng.lng;
 
     if (marker) {
       map.removeLayer(marker);
     }
 
-    marker = L.marker([lat, lng]).addTo(map);
+    marker = L.marker([selectedLat, selectedLng]).addTo(map);
   });
 
-  // Кнопка подтверждения
-  document.getElementById('confirmBtn').addEventListener('click', function() {
-
-    if (!window.selectedLat || !window.selectedLng) {
+  document.getElementById('confirmBtn').addEventListener('click', () => {
+    if (!selectedLat || !selectedLng) {
       alert('Выберите точку на карте');
       return;
     }
 
-    // ОТПРАВКА В TELEGRAM
-    Telegram.WebApp.sendData(JSON.stringify({
-      lat: window.selectedLat,
-      lng: window.selectedLng
+    // отправка данных
+    tg.sendData(JSON.stringify({
+      lat: selectedLat,
+      lng: selectedLng
     }));
 
-    // Закрыть WebApp (как в Uber)
-    Telegram.WebApp.close();
+    // закрытие карты
+    tg.close();
   });
-
 </script>
 
 </body>
