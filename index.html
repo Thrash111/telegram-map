@@ -12,8 +12,36 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    body { margin: 0; }
-    #map { height: 100vh; width: 100%; }
+    body { margin: 0; font-family: Arial; }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* 🔥 КНОПКА ПОВЕРХ КАРТЫ */
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+
+    button {
+      padding: 14px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #2ea6ff;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
   </style>
 </head>
 
@@ -21,35 +49,44 @@
 
 <div id="map"></div>
 
+<!-- 🔥 ВОТ ОНА — КНОПКА -->
+<div id="controls">
+  <button onclick="sendLocation()">📍 Подтвердить точку</button>
+</div>
+
 <script>
-  // Инициализация карты (Кременчуг как пример)
   const map = L.map('map').setView([49.0661, 33.4237], 13);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  let marker;
+  let marker = null;
+  let selected = null;
 
-  // Клик по карте
+  // выбор точки
   map.on('click', function(e) {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
 
-    // Удаляем старый маркер
+    selected = { lat, lng };
+
     if (marker) {
       map.removeLayer(marker);
     }
 
-    // Ставим новый
     marker = L.marker([lat, lng]).addTo(map);
-
-    // 👉 ВОТ САМОЕ ГЛАВНОЕ
-    Telegram.WebApp.sendData(JSON.stringify({
-      lat: lat,
-      lng: lng
-    }));
   });
+
+  // отправка в Telegram
+  function sendLocation() {
+    if (!selected) {
+      alert("Сначала выбери точку на карте");
+      return;
+    }
+
+    Telegram.WebApp.sendData(JSON.stringify(selected));
+  }
 </script>
 
 </body>
